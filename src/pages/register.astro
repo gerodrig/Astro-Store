@@ -1,0 +1,17 @@
+---
+import AuthLayout from "@/layouts/AuthLayout.astro";
+import RegisterForm from "@/components/auth/RegisterForm.astro";
+
+const email = Astro.cookies.get("email")?.value ?? "";
+const rememberMe = !!email;
+
+const formSettings = {
+    email,
+    rememberMe,
+};
+---
+
+
+<AuthLayout>
+    <RegisterForm {...formSettings} />
+</AuthLayout>

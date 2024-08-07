@@ -1,0 +1,28 @@
+---
+import MainLayout from '@layouts/MainLayout.astro';
+import Avatar from '@/components/shared/Avatar.astro';
+
+const { user, isLoggedIn } = Astro.locals;
+
+if (!isLoggedIn || !user) {
+  return Astro.redirect('/login');
+}
+
+
+
+
+// if (!firebaseUser) {
+// 	return Astro.redirect("/login");
+// }
+// await firebaseUser?.reload();
+// const user = {
+// 	displayName: firebaseUser.displayName,
+// 	email: firebaseUser.email,
+// 	emailVerified: firebaseUser.emailVerified,
+// 	photoURL: firebaseUser.photoURL,
+// };
+---
+
+<MainLayout>
+  <Avatar {...user} />
+</MainLayout>

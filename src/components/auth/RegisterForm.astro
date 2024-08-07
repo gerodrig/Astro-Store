@@ -1,0 +1,121 @@
+---
+type Props = {
+  email: string;
+  rememberMe: boolean;
+};
+
+const {email, rememberMe} = Astro.props;
+---
+
+<div class="flex justify-center self-center z-10">
+  <div class="p-12 bg-white mx-auto rounded-2xl w-100">
+    <div class="mb-4">
+      <h3 class="font-semibold text-2xl text-gray-800">Sign Up</h3>
+      <p class="text-gray-500">Please register your account.</p>
+    </div>
+    <form class="space-y-5">
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700 tracking-wide"
+          >Username</label
+        >
+        <input
+          class="w-full text-base px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-400"
+          name="username"
+          type="text"
+          placeholder="User"
+        />
+      </div>
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700 tracking-wide"
+          >Email</label
+        >
+        <input
+          class="w-full text-base px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-400"
+          name="email"
+          type="email"
+          value={email}
+          placeholder="mail@gmail.com"
+        />
+      </div>
+      <div class="space-y-2">
+        <label class="mb-5 text-sm font-medium text-gray-700 tracking-wide">
+          Password
+        </label>
+        <input
+          class="w-full content-center text-base px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-400"
+          name="password"
+          type="password"
+          placeholder="Enter your password"
+        />
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <input
+            id="remember_me"
+            name="remember_me"
+            type="checkbox"
+            checked={rememberMe}
+            class="h-4 w-4 bg-purple-500 focus:ring-purple-400 border-gray-300 text-purple-600 rounded"
+          />
+          <label for="remember_me" class="ml-2 block text-sm text-gray-800">Remember me</label>
+        </div>
+        
+        <div class="text-sm flex flex-col">
+          <a href="/login" class="text-purple-400 hover:text-purple-500">
+            Already have an account?
+          </a>
+        </div>
+      </div>
+        
+      <div>
+        <button
+          type="submit"
+          id="btn-submit"
+          class="w-full flex justify-center mt-5 bg-purple-400 hover:bg-purple-500 text-gray-100 p-3 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Sign up
+        </button>
+      </div>
+      </form>
+
+
+    </form>
+    <div class="pt-5 text-center text-gray-400 text-xs">
+      <span>
+        Copyright {new Date().getFullYear()} - {new Date().getFullYear() + 1}
+      </span>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { actions } from 'astro:actions';
+  import Swal from 'sweetalert2';
+
+  const form = document.querySelector('form') as HTMLFormElement;
+  const btnSubmit = document.querySelector('#btn-submit') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+    btnSubmit.setAttribute('disabled', 'disabled');
+
+    const formData = new FormData(form);
+
+    const {data,error} = await actions.registerUser.safe(formData);
+
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...Something went wrong!',
+        text: error.message,
+      });
+      btnSubmit.removeAttribute('disabled');
+      return;
+    }
+
+    window.location.href = '/protected';
+
+  });
+</script>

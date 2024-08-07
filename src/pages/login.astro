@@ -1,0 +1,18 @@
+---
+import AuthLayout from "@/layouts/AuthLayout.astro";
+import LoginForm from "@/components/auth/LoginForm.astro";
+
+
+const email = Astro.cookies.get("email")?.value ?? "";
+const rememberMe = !!email;
+
+const formSettings = {
+    email,
+    rememberMe,
+};
+---
+
+
+<AuthLayout>
+    <LoginForm {...formSettings} />
+</AuthLayout>

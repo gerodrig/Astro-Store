@@ -1,0 +1,22 @@
+---
+import { ProductList } from "@/components/react";
+import MainLayout from "@layouts/MainLayout.astro";
+import { actions } from "astro:actions";
+
+const {data, error} = await actions.getProductsByPage({page: 1, limit: 12});
+
+if (error) {
+	return Astro.redirect('/');
+}
+
+const {products, totalPages} = data;
+
+console.log(products);
+---
+
+<MainLayout>
+	<h1 class="text-3xl">Product List</h1>
+
+	<ProductList products={products} client:idle />
+
+</MainLayout>
