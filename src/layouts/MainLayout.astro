@@ -2,9 +2,12 @@
 import Navbar from '@/components/shared/Navbar.astro';
 
 import '@/assets/styles/globals.css';
+import { ViewTransitions } from 'astro:transitions';
 
 type Props = {
   title?: string;
+  description?: string;
+  image?: string;
 };
 
 const { title = 'Astro - Auth App' } = Astro.props;
@@ -17,10 +20,12 @@ const { title = 'Astro - Auth App' } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+
+    <ViewTransitions />
   </head>
   <body>
     <Navbar />
-    <main class="container m-auto max-w-5xl">
+    <main class="container m-auto max-w-5xl mt-20">
       <slot />
     </main>
   </body>

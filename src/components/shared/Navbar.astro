@@ -1,11 +1,16 @@
 ---
+import { CartCounter } from "../react";
+
 const { isLoggedIn, isAdmin} = Astro.locals;
 ---
 
-<nav class="flex justify-between px-20 py-10 items-center bg-white">
+<nav class="flex justify-between px-20 py-10 items-center fixed top-0 w-full z-10 h-20" style="background-color: #f9f9f9;">
   <h1 class="text-xl text-gray-800 font-bold">Astro Auth</h1>
   <div class="flex items-center">
     <ul class="flex items-center space-x-6">
+
+      <CartCounter client:load transition:persist/>
+
       <li class="font-semibold text-gray-700">
         <a href="/">Home</a>
       </li>
@@ -19,7 +24,7 @@ const { isLoggedIn, isAdmin} = Astro.locals;
 
       {
         !isLoggedIn ? (
-          <li class="font-semibold text-gray-700">
+          <li id="login" class="font-semibold text-gray-700">
             <a href="/login">Login</a>
           </li>
         ) : (
@@ -75,8 +80,11 @@ const { isLoggedIn, isAdmin} = Astro.locals;
 
   const logoutElement = document.querySelector('#logout') as HTMLLIElement;
 
-  logoutElement.addEventListener('click', async () => {
-    await signOut();
-    window.location.href = '/';
-  });
+  if(logoutElement) {
+    logoutElement.addEventListener('click', async () => {
+      await signOut();
+      window.location.href = '/';
+    });
+  }
+
 </script>

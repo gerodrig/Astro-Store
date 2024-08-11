@@ -1,5 +1,7 @@
 import { loginUser, logout, registerUser } from "./auth";
-import { getProductsByPage } from "./products/get-products-by-page.action";
+import { loadProductsFromCart } from "./cart/load-products-from-cart.action";
+import { getProductBySlug, getProductsByPage } from "./products/";
+
 
 export const server = {
     //actions
@@ -11,4 +13,8 @@ export const server = {
 
     //? Products
     getProductsByPage,
+    getProductBySlug,
+
+    //? Cart
+    loadProductsFromCart,
 };

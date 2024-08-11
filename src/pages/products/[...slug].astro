@@ -1,0 +1,147 @@
+---
+import { actions } from 'astro:actions';
+import MainLayout from '@/layouts/MainLayout.astro';
+import ProductSlideshow from '@/components/products/ProductSlideshow.astro';
+
+const { slug } = Astro.params;
+const { data, error } = await actions.getProductBySlug(slug ?? '');
+if (error) {
+  return Astro.redirect('/404');
+}
+
+const { product, images } = data;
+---
+
+<MainLayout title={product.title} description={product.description} image={''}>
+  <!-- <h1>{product.title}</h1> -->
+
+  <div class="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
+    <ProductSlideshow images={images} />
+
+    <section>
+      <h2 class="text-2xl font-bold">{product.title}</h2>
+      <h2 class="font-bold">${product.price}</h2>
+
+      <h3 class="mt-5">Sizes</h3>
+      <ul class="flex gap-3">
+        {
+          product.sizes
+            .split(',')
+            .map((size) => <li data-size={size}>{size}</li>)
+        }
+      </ul>
+
+      <h3 class="mt-5">Quantity</h3>
+      <div>
+        <button class="btn-quantity">-</button>
+        <input type="number" min="1" value="1" />
+        <button class="btn-quantity">+</button>
+      </div>
+
+      <button
+        class="mt-5 bg-blue-500 text-white p-3 w-full disabled:bg-gray-500"
+        >Add to cart</button
+      >
+
+      <h3 class="mt-10">Description</h3>
+      <p>{product.description}</p>
+    </section>
+  </div>
+
+  <input type="hidden" id="product-id" value={product.id} />
+</MainLayout>
+
+<script>
+  import { CartCookiesClient } from '@/utils';
+  import { itemsInCart } from '@/store';
+import { navigate } from 'astro:transitions/client';
+
+  document.addEventListener('astro:page-load', () => {
+    const sizeElements = document.querySelectorAll('li');
+
+    sizeElements.forEach((liElement) => {
+      liElement.addEventListener('click', () => {
+        sizeElements.forEach((el) => el.classList.remove('selected-size'));
+        liElement.classList.add('selected-size');
+      });
+    });
+
+    const quantityInput = document.querySelector('input') as HTMLInputElement;
+    const productIdInput = document.querySelector(
+      '#product-id'
+    ) as HTMLInputElement;
+
+    let quantity = 1;
+
+    const [decrementBtn, incrementBtn, addToCartButton] =
+      document.querySelectorAll('button');
+
+    if (!incrementBtn || !quantityInput) {
+      return;
+    }
+
+    incrementBtn.addEventListener('click', () => {
+      quantity = Math.min(++quantity, 5);
+      quantityInput.value = quantity.toString();
+    });
+
+    decrementBtn.addEventListener('click', () => {
+      quantity = Math.max(--quantity, 0);
+      quantityInput.value = quantity.toString();
+    });
+
+    addToCartButton.addEventListener('click', async () => {
+      const size = document.querySelector('.selected-size')?.textContent;
+
+      if (!size) {
+        return alert('Please select a size');
+      }
+
+      addToCartButton.disabled = true;
+
+      const cart = CartCookiesClient.addItem({
+        productId: productIdInput.value,
+        size,
+        quantity,
+      });
+
+      itemsInCart.set(cart.length);
+
+      //TODO: change when view Transition is available
+      // window.location.href = '/cart';
+      await navigate('/cart');
+    });
+  });
+</script>
+
+<style>
+  h3 {
+    @apply font-bold;
+  }
+
+  li {
+    @apply hover:underline cursor-pointer;
+  }
+
+  .selected-size {
+    @apply text-blue-500 underline font-bold transition-all;
+  }
+
+  .btn-quantity {
+    @apply w-10 text-center p-2 border border-gray-300 hover:bg-gray-100 cursor-pointer;
+  }
+
+  input {
+    @apply w-16 text-center p-2 border border-gray-300;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield; /* Para Firefox */
+  }
+</style>
