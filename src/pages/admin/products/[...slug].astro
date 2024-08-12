@@ -1,0 +1,394 @@
+---
+import { actions } from 'astro:actions';
+
+import MainLayout from '@/layouts/MainLayout.astro';
+
+import ProductImage from '@/components/products/ProductImage.astro';
+import ProductSlideshow from '@/components/products/ProductSlideshow.astro';
+
+const { slug } = Astro.params;
+
+const { data, error } = await actions.getProductBySlug(slug ?? '');
+
+if (error) {
+  return Astro.redirect('/404');
+}
+
+const { product, images } = data;
+---
+
+<MainLayout title="Product Management">
+  <h1>{product.title}</h1>
+  <a href="javascript:history.back()" class="text-blue-500">← Return</a>
+
+  <form class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <input type="hidden" name="id" value={product.id} />
+    <!-- General Information -->
+    <div class="mt-2">
+      <h2 class="text-lg font-semibold">General Information</h2>
+
+      <!-- Title -->
+      <div class="mb-4">
+        <label for="title" class="block">Títle</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value={product.title}
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+
+      <!-- Slug -->
+      <div class="mb-4">
+        <label for="slug" class="block">Slug</label>
+        <input
+          type="text"
+          id="slug"
+          name="slug"
+          value={product.slug}
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+
+      <!-- Description -->
+      <div class="mb-4">
+        <label for="description" class="block">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          class="w-full p-2 border border-gray-300 rounded"
+          rows="8">{product.description}</textarea
+        >
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <!-- Price -->
+        <div class="mb-4">
+          <label for="price" class="block">Price</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            value={product.price}
+            class="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        <!-- Inventario -->
+        <div class="mb-4">
+          <label for="stock" class="block">Stock</label>
+          <input
+            type="number"
+            id="stock"
+            name="stock"
+            value={product.stock}
+            class="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+      </div>
+
+      <!-- Labels -->
+      <div class="mb-4">
+        <label for="tags" class="block"
+          >Labels <small class="text-gray-500">(Comma separated)</small></label
+        >
+        <input
+          type="text"
+          id="tags"
+          name="tags"
+          value={product.tags}
+          class="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Gender -->
+        <div class="mb-4">
+          <label for="gender" class="block">Gender</label>
+          <select
+            class="w-full p-2 border border-gray-300 rounded"
+            name="gender"
+          >
+            <option value="">[ Select ]</option>
+            {
+              ['men', 'women', 'unisex', 'kid'].map((gender) => (
+                <option
+                  value={gender}
+                  class="capitalize"
+                  selected={gender === product.gender}
+                >
+                  {gender.toUpperCase()}
+                </option>
+              ))
+            }
+          </select>
+        </div>
+
+        <!-- Type -->
+        <div class="mb-4">
+          <label for="tags" class="block">Type</label>
+          <select class="w-full p-2 border border-gray-300 rounded" name="type">
+            <option value="">[ Select ]</option>
+            {
+              ['shirts', 'shirt', 'pants', 'hats', 'hoodies'].map((type) => (
+                <option
+                  value={type}
+                  class="capitalize"
+                  selected={type === product.type}
+                >
+                  {type.toUpperCase()}
+                </option>
+              ))
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Sizes -->
+      <div class="mb-4">
+        <label for="sizes" class="block">Sizes</label>
+        <div class="flex">
+          {
+            ['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+              <button
+                type="button"
+                class="btn-size"
+                onclick="this.classList.toggle('active')"
+                class:list={
+                  product.sizes.split(',').includes(size) ? 'active' : ''
+                }
+              >
+                {size}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Imagenes -->
+    <div>
+      <!-- File upload -->
+      <div class="mt-4">
+        <!-- Save  -->
+        <div class="flex justify-end">
+          <button class="bg-blue-500 mb-5 p-2 rounded text-white"
+            >Save Product</button
+          >
+        </div>
+
+        <!-- File input -->
+        <div class="flex items-center justify-center w-full">
+          <label
+            for="file-upload"
+            class="flex flex-col items-center justify-center w-full h-52 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100"
+            id="drop-zone"
+          >
+            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+              <svg
+                class="w-8 h-8 mb-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 16V4a2 2 0 012-2h6a2 2 0 012 2v12m-6 4l-4-4m0 0l4-4m-4 4h12"
+                ></path>
+              </svg>
+              <p class="mb-2 text-sm text-gray-500" id="lbl-selected-files">
+                <span class="font-semibold">Click Here </span> drag the files
+              </p>
+              <p class="text-xs text-gray-500">
+                SVG, PNG, JPG or GIF (max. 800x400px)
+              </p>
+            </div>
+
+            <!-- class="hidden" -->
+            <!-- accept only images -->
+            <input
+              id="file-upload"
+              name="imageFiles"
+              type="file"
+              accept="image/*"
+              multiple
+              class="hidden"
+            />
+          </label>
+        </div>
+
+        <!-- Slideshow -->
+        <ProductSlideshow images={images.map((i) => i.image)} />
+
+        <table class="w-full border">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              images.map(({ image, id }) => (
+                <tr id={id} class="border">
+                  <td class="flex justify-center">
+                    <ProductImage
+                      src={image}
+                      alt={product.title}
+                      className="w-16 h-16 rounded"
+                    />
+                  </td>
+                  <td class="text-center">
+                    <button type="button" data-id={id} class="btn-delete-image">
+                      X
+                    </button>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </form>
+
+  <style>
+    .btn-size,
+    .btn-delete-image {
+      @apply rounded border cursor-pointer border-gray-300 w-10 h-10 mr-4 hover:bg-blue-300 hover:text-white transition-all;
+    }
+
+    .active {
+      @apply bg-blue-500 text-white;
+    }
+  </style>
+</MainLayout>
+
+<script>
+  import { actions } from 'astro:actions';
+  import { navigate } from 'astro:transitions/client';
+
+  document.addEventListener('astro:page-load', () => {
+    const form = document.querySelector('form') as HTMLFormElement;
+    const btnsDeleteImage = document.querySelectorAll('.btn-delete-image');
+    const lblSelectedFiles = document.querySelector(
+      '#lbl-selected-files'
+    ) as HTMLParagraphElement;
+    const dropZone = document.querySelector('#drop-zone') as HTMLLabelElement;
+    const fileInput = document.querySelector(
+      '#file-upload'
+    ) as HTMLInputElement;
+
+    const sizeButtons = document.querySelectorAll('.btn-size');
+
+    if (!form) return;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const selectedSizes = Array.from(sizeButtons)
+        .filter((button) => button.classList.contains('active'))
+        .map((button) => button.textContent?.trim())
+        .join(',');
+
+      const formData = new FormData(form);
+      formData.set('sizes', selectedSizes);
+
+      const formValues = Object.fromEntries(formData.entries());
+
+      //   console.log(formValues);
+
+      const { data, error } = await actions.createUpdateProduct(formData);
+
+      if (error) {
+        return alert('Error saving the product');
+      }
+
+      navigate(`/admin/products/${data.slug}`);
+    });
+
+    //? Delete image
+
+    btnsDeleteImage.forEach((btn) => {
+      btn.addEventListener('click', async (event) => {
+        const id = btn.getAttribute('data-id');
+
+        if (!id) return;
+
+        const { data, error } = await actions.deleteProductImage(id);
+
+        if (error) {
+          return alert('Error deleting the image');
+        }
+
+        const trId = `#${id}`;
+        document.querySelector(trId)?.remove();
+      });
+    });
+
+    //? Drag and Drop
+
+    const preventDefaults = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const highlight = (e: DragEvent) => {
+      dropZone.classList.add('border-blue-500', 'bg-blue-50');
+    };
+
+    const unHighlight = (e: DragEvent) => {
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    };
+
+    const createFileList = (files: File[]): FileList => {
+      const dataTransfer = new DataTransfer();
+
+      files.forEach((file) => dataTransfer.items.add(file));
+
+      return dataTransfer.files;
+    };
+
+    const handleFiles = (files: FileList) => {
+      const validFile = Array.from(files).filter((file) =>
+        file.type.startsWith('image/')
+      );
+
+      if (fileInput && validFile.length > 0) {
+        fileInput.files = createFileList(validFile);
+      }
+
+      lblSelectedFiles.innerHTML = `<strong>${validFile.length}</strong> files selected`;
+    };
+
+    (['dragenter', 'dragover', 'dragleave', 'drop'] as const).forEach(
+      (eventName) => {
+        dropZone.addEventListener(eventName, preventDefaults);
+        document.body.addEventListener(eventName, preventDefaults);
+      }
+    );
+
+    (['dragenter', 'dragover'] as const).forEach((eventName) => {
+      dropZone.addEventListener(eventName, highlight);
+    });
+
+    (['dragleave', 'drop'] as const).forEach((eventName) => {
+      dropZone.addEventListener(eventName, unHighlight);
+    });
+
+    //? Validate that only images are uploaded
+    dropZone.addEventListener('drop', (e: DragEvent) => {
+      const files = e.dataTransfer?.files;
+
+      if (files) {
+        handleFiles(files);
+      }
+    });
+ 
+    //? End astro load
+  });
+</script>

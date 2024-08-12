@@ -1,6 +1,6 @@
 import { loginUser, logout, registerUser } from "./auth";
 import { loadProductsFromCart } from "./cart/load-products-from-cart.action";
-import { getProductBySlug, getProductsByPage } from "./products/";
+import { createUpdateProduct, deleteProductImage, getProductBySlug, getProductsByPage } from "./products/";
 
 
 export const server = {
@@ -17,4 +17,9 @@ export const server = {
 
     //? Cart
     loadProductsFromCart,
+
+    //? Admin
+    //? Product
+    createUpdateProduct,
+    deleteProductImage,
 };

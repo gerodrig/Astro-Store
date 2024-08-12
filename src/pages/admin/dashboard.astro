@@ -1,0 +1,66 @@
+---
+import { actions } from 'astro:actions';
+
+import MainLayout from '@/layouts/MainLayout.astro';
+import Pagination from '@/components/shared/Pagination.astro';
+import { Formatter } from '@/utils';
+import ProductImage from '@/components/products/ProductImage.astro';
+
+const searchParams = Astro.url.searchParams;
+const pageParam = Number(searchParams.get('page')) || 1;
+
+const { data, error } = await actions.getProductsByPage({
+  page: pageParam,
+  limit: 12,
+});
+
+if (error) {
+  return Astro.redirect('/');
+}
+
+const { products, totalPages } = data;
+---
+
+<MainLayout title="Admin Panel">
+  <h1>Dashboard</h1>
+  <p>Products List</p>
+
+  <div class="flex justify-end">
+    <a href="/admin/products/new" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all">Create New Product</a>
+  </div>
+
+  <table class="w-full mt-5">
+    <thead>
+      <tr>
+        <th class="text-left">Image</th>
+        <th class="text-left">Title</th>
+        <th class="text-left">Price</th>
+        <th class="text-left">Stock</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        products.map((product) => (
+          <tr>
+            <td>
+                <ProductImage src={product.images.split(',')[0]} alt={product.title} className="w-16 h-16" />
+            </td>
+            <td>
+              <a
+                class="hover:underline cursor-pointer"
+                href={`/admin/products/${product.slug}`}
+                data-astro-prefetch="load"
+              >
+                {product.title}
+              </a>
+            </td>
+            <td>{Formatter.currency(product.price)}</td>
+            <td>{product.stock}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <Pagination totalPages={totalPages} />
+</MainLayout>

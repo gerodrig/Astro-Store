@@ -2,6 +2,7 @@
 import { actions } from 'astro:actions';
 import MainLayout from '@/layouts/MainLayout.astro';
 import ProductSlideshow from '@/components/products/ProductSlideshow.astro';
+import { getImagePath } from '@/utils';
 
 const { slug } = Astro.params;
 const { data, error } = await actions.getProductBySlug(slug ?? '');
@@ -10,13 +11,19 @@ if (error) {
 }
 
 const { product, images } = data;
+
+const image = getImagePath(images[0].image);
 ---
 
-<MainLayout title={product.title} description={product.description} image={''}>
+<MainLayout
+  title={product.title}
+  description={product.description}
+  image={image}
+>
   <!-- <h1>{product.title}</h1> -->
 
   <div class="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
-    <ProductSlideshow images={images} />
+    <ProductSlideshow images={images.map((i) => i.image)} />
 
     <section>
       <h2 class="text-2xl font-bold">{product.title}</h2>
@@ -54,7 +61,7 @@ const { product, images } = data;
 <script>
   import { CartCookiesClient } from '@/utils';
   import { itemsInCart } from '@/store';
-import { navigate } from 'astro:transitions/client';
+  import { navigate } from 'astro:transitions/client';
 
   document.addEventListener('astro:page-load', () => {
     const sizeElements = document.querySelectorAll('li');

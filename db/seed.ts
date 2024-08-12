@@ -12,7 +12,7 @@ export default async function seed() {
   ];
 
   const benito = {
-    id: UUID(),
+    id: 'ABC-123-BENITO', //UUID(),
     name: 'Benito Martinez',
     email: 'benito@google.com',
     password: bcrypt.hashSync('123456'),
@@ -20,7 +20,7 @@ export default async function seed() {
   };
 
   const mimi = {
-    id: UUID(),
+    id: 'ABC-123-MIMI', //UUID(),
     name: 'Mimi Martinez',
     email: 'mimi@google.com',
     password: bcrypt.hashSync('123456'),
